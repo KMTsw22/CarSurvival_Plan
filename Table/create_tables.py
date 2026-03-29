@@ -545,6 +545,37 @@ add_data(ws,
 )
 
 # ============================================================
+# 12. TB_Map
+# ============================================================
+ws = wb.create_sheet('TB_Map')
+add_data(ws,
+    ['map_id', 'map_name', 'map_desc', 'bg_sprite_key', 'tile_size', 'grid_size',
+     'special_effect', 'unlock_cost', 'unlock_currency_id', 'unlocked_by_default', 'release_phase'],
+    [
+        ['MAP_001', '야간 도시 고속도로', '네온 불빛이 빛나는 도심 고속도로',
+         'map_1', 0, 4, 'None', 0, 'CUR_001', True, 'MVP'],
+        ['MAP_002', '사막 하이웨이', '끝없이 펼쳐진 모래 폭풍 속 도로',
+         'map_2', 0, 4, 'Sandstorm', 1000, 'CUR_001', False, 'v2'],
+        ['MAP_003', '눈덮인 산악도로', '미끄러운 빙판과 눈보라',
+         'map_3', 0, 4, 'IceSlip', 2000, 'CUR_001', False, 'v2'],
+    ],
+    ['pk', '', '', '', '', '', '', '', 'fk', '', 'enum'],
+    descriptions=[
+        ('map_id', 'string (PK)', '맵 고유 ID. 형식: MAP_###'),
+        ('map_name', 'string', '맵 표시 이름'),
+        ('map_desc', 'string', '맵 설명 (UI 표시용)'),
+        ('bg_sprite_key', 'string', '배경 스프라이트 리소스 키. Resources 폴더 기준'),
+        ('tile_size', 'float', '배경 타일 크기. 0 = 스프라이트 원본 크기 사용'),
+        ('grid_size', 'int', '배경 타일링 반복 횟수 (중심 기준 ±N). 4 = 9x9 그리드'),
+        ('special_effect', 'string', '맵 고유 효과. None / Sandstorm / IceSlip / Rain 등'),
+        ('unlock_cost', 'int', '해금 비용. 0 = 무료(기본 맵)'),
+        ('unlock_currency_id', 'string (FK)', '해금 재화 ID. → TB_Currency.currency_id'),
+        ('unlocked_by_default', 'bool', 'true = 처음부터 사용 가능'),
+        ('release_phase', 'enum', '출시 단계. 값: MVP / v1.5 / v2'),
+    ]
+)
+
+# ============================================================
 # Save
 # ============================================================
 wb.save('car_survivor_tables.xlsx')

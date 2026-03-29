@@ -71,6 +71,10 @@ SHEET_CONFIG = {
         "output": "TB_Shop",
         "types": [str, str, str, str, int, str, str, str, int, bool, str, str],
     },
+    "TB_Map": {
+        "output": "TB_Map",
+        "types": [str, str, str, str, float, int, str, int, str, bool, str],
+    },
 }
 
 
