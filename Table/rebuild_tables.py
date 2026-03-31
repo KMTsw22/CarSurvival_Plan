@@ -89,23 +89,34 @@ write_sheet(wb, "TB_Car",
 )
 
 # === TB_Weapon (주무기 + 보조무기) ===
+# etc_value 주석:
+#   기관총: etc1=없음, etc2=없음, etc3=없음, etc4=없음, etc5=없음
+#   오일슬릭: etc1=감속비율(%), etc2=감속지속(초), etc3=범위반경, etc4=없음, etc5=없음
+#   회전톱날: etc1=회전속도(도/초), etc2=궤도반경, etc3=타격간격(초), etc4=없음, etc5=없음
 write_sheet(wb, "TB_Weapon",
-    ["weapon_id", "weapon_name", "weapon_category", "base_damage", "effect_desc",
+    ["weapon_id", "weapon_name", "weapon_category", "damage", "effect_desc",
      "aim_type", "weapon_type", "cooldown", "duration", "max_level",
-     "drop_weight", "icon_key"],
+     "drop_weight", "icon_key",
+     "etc_value1", "etc_value2", "etc_value3", "etc_value4", "etc_value5"],
     [
+        # 기관총: damage=레벨당 추가 데미지
         ["WPN_001", "기관총", "Main", 20, "마우스 방향 연사",
-         "Manual", "MachineGun", 0.3, 0, 5, 10, "ico_machinegun"],
-        ["WPN_002", "오일 슬릭", "Sub", 2, "기름 장판 설치 (감속)",
-         "Auto", "OilSlick", 5, 5, 5, 8, "ico_oilslick"],
-        ["WPN_003", "회전 톱날", "Sub", 30, "차량 주변 회전 데미지",
-         "Auto", "SawBlade", 0, 0, 5, 8, "ico_sawblade"],
+         "Manual", "MachineGun", 0.3, 0, 5, 10, "ico_machinegun",
+         0, 0, 0, 0, 0],
+        # 오일슬릭: damage=초당DPS, etc1=감속50%, etc2=감속0.5초, etc3=기본반경0.8
+        ["WPN_002", "오일 슬릭", "Sub", 3, "독 웅덩이 (지속뎀+감속)",
+         "Auto", "OilSlick", 5, 5, 5, 8, "ico_oilslick",
+         50, 0.5, 0.8, 0, 0],
+        # 회전톱날: damage=타격당뎀, etc1=회전속도180, etc2=궤도반경2, etc3=타격간격0.3
+        ["WPN_003", "회전 톱날", "Sub", 15, "차량 주변 회전 데미지",
+         "Auto", "SawBlade", 0, 0, 5, 8, "ico_sawblade",
+         180, 2, 0.3, 0, 0],
     ],
     [
         ["weapon_id", "string (PK)", "무기 고유 ID. 규칙: WPN_###"],
         ["weapon_name", "string", "무기 표시 이름"],
         ["weapon_category", "enum", "Main=주무기 / Sub=보조무기"],
-        ["base_damage", "float", "기본 데미지 (레벨당 증가 기준)"],
+        ["damage", "float", "기본 데미지 (레벨 스케일링 기준)"],
         ["effect_desc", "string", "효과 설명"],
         ["aim_type", "enum", "Manual=마우스 조준 / Auto=자동 발동"],
         ["weapon_type", "enum", "무기 타입. MachineGun/OilSlick/SawBlade"],
@@ -114,6 +125,11 @@ write_sheet(wb, "TB_Weapon",
         ["max_level", "int", "최대 레벨"],
         ["drop_weight", "int", "레벨업 선택지 등장 가중치"],
         ["icon_key", "string", "아이콘 리소스 키"],
+        ["etc_value1", "float", "무기별 추가값1 (주석 참조)"],
+        ["etc_value2", "float", "무기별 추가값2 (주석 참조)"],
+        ["etc_value3", "float", "무기별 추가값3 (주석 참조)"],
+        ["etc_value4", "float", "무기별 추가값4 (예비)"],
+        ["etc_value5", "float", "무기별 추가값5 (예비)"],
     ]
 )
 
