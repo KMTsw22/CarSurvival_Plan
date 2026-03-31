@@ -29,51 +29,43 @@ OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resou
 SHEET_CONFIG = {
     "TB_Currency": {
         "output": "TB_Currency",
-        "types": [str, str, str, int, str],
+        "types": [str, str, str, str],
     },
     "TB_Car": {
         "output": "TB_Car",
         "types": [str, str, str, float, float, float, float, float, str, float, str, int, str, bool, str],
     },
-    "TB_PartGrade": {
-        "output": "TB_PartGrade",
-        "types": [str, str, str, float, str, int],
+    "TB_Weapon": {
+        "output": "TB_Weapon",
+        "types": [str, str, str, float, str, str, str, float, float, int, int, str],
+    },
+    "TB_SpellBook": {
+        "output": "TB_SpellBook",
+        "types": [str, str, str, float, str, int, bool, int, str],
     },
     "TB_Part": {
         "output": "TB_Part",
-        "types": [str, str, str, float, str, str, bool, str, float, float, int, bool, int, bool, str],
-    },
-    "TB_Evolution": {
-        "output": "TB_Evolution",
-        "types": [str, str, str, int, str, int, str, str, str],
+        "types": [str, str, str, str, float, int, str],
     },
     "TB_Monster": {
         "output": "TB_Monster",
-        "types": [str, str, bool, float, float, float, float, int, int, str, str, str],
+        "types": [str, str, bool, float, float, float, float, int, int, str, str],
     },
     "TB_MonsterDrop": {
         "output": "TB_MonsterDrop",
-        "types": [str, str, int, int, str, float],
+        "types": [str, str, int, int, int],
     },
     "TB_Wave": {
         "output": "TB_Wave",
-        "types": [str, int, str, str, int, int, float, str],
+        "types": [str, str, int, str, str, int, int, float, str],
     },
     "TB_Level": {
         "output": "TB_Level",
-        "types": [int, int, int, float, int, int, int, int, str],
-    },
-    "TB_Reward": {
-        "output": "TB_Reward",
-        "types": [str, str, str, int, float, str],
-    },
-    "TB_Shop": {
-        "output": "TB_Shop",
-        "types": [str, str, str, str, int, str, str, str, int, bool, str, str],
+        "types": [int, int, int, float, str],
     },
     "TB_Map": {
         "output": "TB_Map",
-        "types": [str, str, str, str, float, int, str, int, str, bool, str],
+        "types": [str, str, str, int, str, str, int, str, bool],
     },
 }
 
