@@ -63,9 +63,21 @@ SHEET_CONFIG = {
         "output": "TB_Level",
         "types": [int, int, int, float, str],
     },
+    "TB_LangLevelUpSelect_name": {
+        "output": "TB_LangLevelUpSelect_name",
+        "types": [str, str, str],
+    },
+    "TB_LangLevelUpSelect_des": {
+        "output": "TB_LangLevelUpSelect_des",
+        "types": [str, str, str],
+    },
     "TB_Map": {
         "output": "TB_Map",
         "types": [str, str, str, int, str, str, int, str, bool],
+    },
+    "TB_Stage": {
+        "output": "TB_Stage",
+        "types": [str, str, int, str, str, int, str, str, float],
     },
 }
 

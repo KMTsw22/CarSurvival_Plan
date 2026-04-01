@@ -110,3 +110,6 @@ $RECYCLE.BIN/
 ./GeminiPrompt/.env.local
 ./GeminiPrompt/.claude/
 
+
+GeminiPrompt/node_modules/*
+GeminiPrompt/node_modules
