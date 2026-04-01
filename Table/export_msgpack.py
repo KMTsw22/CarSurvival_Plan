@@ -49,7 +49,7 @@ SHEET_CONFIG = {
     },
     "TB_Monster": {
         "output": "TB_Monster",
-        "types": [str, str, bool, float, float, float, float, int, int, str, str],
+        "types": [str, str, bool, float, float, float, float, int, int, str, str, float, float, float],
     },
     "TB_MonsterDrop": {
         "output": "TB_MonsterDrop",
@@ -57,7 +57,7 @@ SHEET_CONFIG = {
     },
     "TB_Wave": {
         "output": "TB_Wave",
-        "types": [str, str, int, str, str, int, int, float, str],
+        "types": [str, int, str, int, float, int, float, str],
     },
     "TB_Level": {
         "output": "TB_Level",
@@ -151,7 +151,7 @@ def main():
         rows = process_sheet(ws, config)
 
         # MessagePack 직렬화
-        packed = msgpack.packb(rows, use_bin_type=True)
+        packed = msgpack.packb(rows, use_bin_type=True, use_single_float=True)
 
         # .bytes 파일 저장
         out_path = os.path.join(OUTPUT_DIR, config["output"] + ".bytes")
