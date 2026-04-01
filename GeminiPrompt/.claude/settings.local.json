@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --use-npm)",
+      "Read(//c/PBL/**)",
+      "Bash(npx create-next-app@latest gemini-prompt-temp --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --use-npm)",
+      "Bash(npx create-next-app@latest gemini-prompt-temp --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --use-npm --no-turbopack 2)",
+      "Bash(1:*)",
+      "Bash(npx create-next-app@latest gemini-prompt-temp --typescript --tailwind --app --src-dir --no-eslint --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(yes \"No\")",
+      "Bash(cp -r c:/PBL/gemini-prompt-temp/* c:/PBL/GeminiPrompt/)",
+      "Bash(cp -r c:/PBL/gemini-prompt-temp/.* c:/PBL/GeminiPrompt/)",
+      "Bash(rm -rf c:/PBL/gemini-prompt-temp)",
+      "Bash(npm install:*)",
+      "Bash(c:/PBL/GeminiPrompt/.env.local:*)"
+    ]
+  }
+}
