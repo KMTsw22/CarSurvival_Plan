@@ -77,7 +77,11 @@ SHEET_CONFIG = {
     },
     "TB_Stage": {
         "output": "TB_Stage",
-        "types": [str, str, int, str, str, int, str, str, float],
+        "types": [str, str, int, str, str, int, str, str, float, str],
+    },
+    "TB_WarningWave": {
+        "output": "TB_WarningWave",
+        "types": [str, int, str, int, float, int, float, float, str],
     },
 }
 
