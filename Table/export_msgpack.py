@@ -22,7 +22,7 @@ XLSX_CANDIDATES = [
     os.path.join(SCRIPT_DIR, "car_survivor_tables_v2.xlsx"),
     os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx"),
 ]
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables")
+OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvival", "Assets", "Resources", "Tables")
 
 # 각 시트에 대한 설정: (시트명, 출력파일명, 컬럼 타입 리스트)
 # 타입: str, int, float, bool
