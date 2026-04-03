@@ -90,36 +90,62 @@ write_sheet(wb, "TB_Car",
 
 # === TB_Weapon (주무기 + 보조무기) ===
 # etc_value 주석:
-#   기관총: etc1=없음, etc2=없음, etc3=없음, etc4=없음, etc5=없음
-#   오일슬릭: etc1=감속비율(%), etc2=감속지속(초), etc3=범위반경, etc4=없음, etc5=없음
-#   회전톱날: etc1=회전속도(도/초), etc2=궤도반경, etc3=타격간격(초), etc4=없음, etc5=없음
+#   기관총: etc1=없음, etc2=없음, etc3=없음
+#   오일슬릭: etc1=감속비율(%), etc2=감속지속(초), etc3=범위반경
+#   회전톱날: etc1=회전속도(도/초), etc2=궤도반경, etc3=타격간격(초)
+#   체인라이트닝: etc1=기본타격인원, etc2=레벨당추가인원, etc3=없음
+#   EMP펄스: etc1=기본지속시간(초), etc2=기본반경, etc3=레벨당반경증가
+#   화염방사기: etc1=기본지속시간(초), etc2=기본반경, etc3=레벨당반경증가
+#   레이저캐논: etc1=기본레이저수, etc2=레벨당레이저추가, etc3=없음
+#   미사일포드: etc1=기본미사일수, etc2=레벨당미사일추가, etc3=없음
 write_sheet(wb, "TB_Weapon",
     ["weapon_id", "weapon_name", "weapon_category", "damage", "effect_desc",
      "aim_type", "weapon_type", "cooldown", "duration", "max_level",
      "drop_weight", "icon_key",
-     "etc_value1", "etc_value2", "etc_value3", "etc_value4", "etc_value5"],
+     "etc_value1", "etc_value2", "etc_value3", "etc_value4", "etc_value5",
+     "damage_per_level"],
     [
-        # 기관총: damage=레벨당 추가 데미지
+        # 기관총: damage=기본뎀, damage_per_level=레벨당 추가 데미지
         ["WPN_001", "기관총", "Main", 20, "마우스 방향 연사",
          "Manual", "MachineGun", 0.3, 0, 5, 10, "ico_machinegun",
-         0, 0, 0, 0, 0],
+         0, 0, 0, 0, 0, 5],
         # 오일슬릭: damage=초당DPS, etc1=감속50%, etc2=감속0.5초, etc3=기본반경0.8
         ["WPN_002", "오일 슬릭", "Sub", 3, "독 웅덩이 (지속뎀+감속)",
          "Auto", "OilSlick", 5, 5, 5, 8, "ico_oilslick",
-         50, 0.5, 0.8, 0, 0],
+         50, 0.5, 0.8, 0, 0, 1],
         # 회전톱날: damage=타격당뎀, etc1=회전속도180, etc2=궤도반경2, etc3=타격간격0.3
         ["WPN_003", "회전 톱날", "Sub", 15, "차량 주변 회전 데미지",
          "Auto", "SawBlade", 0, 0, 5, 8, "ico_sawblade",
-         180, 2, 0.3, 0, 0],
+         180, 2, 0.3, 0, 0, 3],
+        # 체인라이트닝: etc1=기본타격인원3, etc2=레벨당+1명
+        ["WPN_004", "체인 라이트닝", "Sub", 25, "연쇄 번개 공격",
+         "Auto", "ChainLightning", 1.5, 0, 5, 8, "ico_chainlightning",
+         3, 1, 0, 0, 0, 5],
+        # EMP펄스: etc1=기본지속시간2초, etc2=기본반경3, etc3=레벨당반경+0.5
+        ["WPN_005", "EMP 펄스", "Sub", 10, "범위 전자기 충격",
+         "Auto", "EMPPulse", 6, 2, 5, 8, "ico_emppulse",
+         2, 3, 0.5, 0, 0, 3],
+        # 화염방사기: etc1=기본지속시간3초, etc2=기본반경2, etc3=레벨당반경+0.3
+        ["WPN_006", "화염방사기", "Sub", 8, "전방 화염 방사",
+         "Auto", "Flamethrower", 4, 3, 5, 8, "ico_flamethrower",
+         3, 2, 0.3, 0, 0, 2],
+        # 레이저캐논: etc1=기본레이저1개, etc2=레벨당+1개
+        ["WPN_007", "레이저 캐논", "Main", 30, "관통 레이저 발사",
+         "Manual", "LaserCannon", 2, 0, 5, 8, "ico_lasercannon",
+         1, 1, 0, 0, 0, 8],
+        # 미사일포드: etc1=기본미사일2개, etc2=레벨당+1개
+        ["WPN_008", "미사일 포드", "Sub", 40, "유도 미사일 발사",
+         "Auto", "MissilePod", 3, 0, 5, 8, "ico_missilepod",
+         2, 1, 0, 0, 0, 10],
     ],
     [
         ["weapon_id", "string (PK)", "무기 고유 ID. 규칙: WPN_###"],
         ["weapon_name", "string", "무기 표시 이름"],
         ["weapon_category", "enum", "Main=주무기 / Sub=보조무기"],
-        ["damage", "float", "기본 데미지 (레벨 스케일링 기준)"],
+        ["damage", "float", "기본 데미지 (레벨 1 기준)"],
         ["effect_desc", "string", "효과 설명"],
         ["aim_type", "enum", "Manual=마우스 조준 / Auto=자동 발동"],
-        ["weapon_type", "enum", "무기 타입. MachineGun/OilSlick/SawBlade"],
+        ["weapon_type", "enum", "무기 타입. MachineGun/OilSlick/SawBlade/ChainLightning/EMPPulse/Flamethrower/LaserCannon/MissilePod"],
         ["cooldown", "float", "쿨타임/발사간격 (초). 0=없음"],
         ["duration", "float", "지속시간 (초). 0=영구"],
         ["max_level", "int", "최대 레벨"],
@@ -130,6 +156,7 @@ write_sheet(wb, "TB_Weapon",
         ["etc_value3", "float", "무기별 추가값3 (주석 참조)"],
         ["etc_value4", "float", "무기별 추가값4 (예비)"],
         ["etc_value5", "float", "무기별 추가값5 (예비)"],
+        ["damage_per_level", "float", "레벨당 데미지 증가량"],
     ]
 )
 

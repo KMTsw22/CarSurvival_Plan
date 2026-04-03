@@ -37,7 +37,7 @@ SHEET_CONFIG = {
     },
     "TB_Weapon": {
         "output": "TB_Weapon",
-        "types": [str, str, str, float, str, str, str, float, float, int, int, str, float, float, float, float, float],
+        "types": [str, str, str, float, str, str, str, float, float, int, int, str, float, float, float, float, float, float],
     },
     "TB_SpellBook": {
         "output": "TB_SpellBook",
