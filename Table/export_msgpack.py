@@ -2,9 +2,11 @@
 엑셀 테이블 → MessagePack .bytes 변환 스크립트
 
 사용법:
-    py export_msgpack.py
+    py export_msgpack.py          # 전체 테이블 변환
+    py export_msgpack.py TB_Car   # 특정 테이블만 변환
 
-입력: car_survivor_tables.xlsx (또는 _v2)
+입력: 개별 엑셀 파일 (TB_Car.xlsx, TB_Monster.xlsx 등)
+      없으면 car_survivor_tables.xlsx 에서 시트로 읽기 (폴백)
 출력: ../../CarSurvior/Assets/Resources/Tables/*.bytes
 """
 
@@ -18,10 +20,7 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 # ─── 설정 ───
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-XLSX_CANDIDATES = [
-    os.path.join(SCRIPT_DIR, "car_survivor_tables_v2.xlsx"),
-    os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx"),
-]
+FALLBACK_XLSX = os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx")
 OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables")
 
 # 각 시트에 대한 설정: (시트명, 출력파일명, 컬럼 타입 리스트)
@@ -138,48 +137,59 @@ def process_sheet(ws, config):
 
 
 def main():
-    # 엑셀 파일 찾기
-    xlsx_path = None
-    for candidate in XLSX_CANDIDATES:
-        if os.path.exists(candidate):
-            xlsx_path = candidate
-            break
-
-    if xlsx_path is None:
-        print("ERROR: car_survivor_tables.xlsx 파일을 찾을 수 없습니다.")
-        sys.exit(1)
-
-    print("Input: {}".format(xlsx_path))
-
-    # 출력 폴더 생성
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     print("Output: {}".format(os.path.abspath(OUTPUT_DIR)))
 
-    wb = openpyxl.load_workbook(xlsx_path, read_only=True, data_only=True)
+    # 특정 테이블만 변환 (인자가 있으면)
+    filter_tables = None
+    if len(sys.argv) > 1:
+        filter_tables = sys.argv[1:]
+        print("Filter: {}".format(", ".join(filter_tables)))
+
+    # 폴백용 통합 워크북 (개별 파일이 없을 때)
+    fallback_wb = None
 
     total = 0
     for sheet_name, config in SHEET_CONFIG.items():
-        if sheet_name not in wb.sheetnames:
-            print("  SKIP: {} (시트 없음)".format(sheet_name))
+        if filter_tables and sheet_name not in filter_tables:
             continue
 
-        ws = wb[sheet_name]
-        rows = process_sheet(ws, config)
+        # 1) 개별 파일 우선 (TB_Car.xlsx 등)
+        individual_path = os.path.join(SCRIPT_DIR, "TableAsset", sheet_name + ".xlsx")
+        if os.path.exists(individual_path):
+            wb = openpyxl.load_workbook(individual_path, read_only=True, data_only=True)
+            ws = wb[sheet_name]
+            rows = process_sheet(ws, config)
+            wb.close()
+            src = os.path.basename(individual_path)
+        # 2) 폴백: 통합 엑셀 파일
+        elif os.path.exists(FALLBACK_XLSX):
+            if fallback_wb is None:
+                fallback_wb = openpyxl.load_workbook(FALLBACK_XLSX, read_only=True, data_only=True)
+            if sheet_name not in fallback_wb.sheetnames:
+                print("  SKIP: {} (파일/시트 없음)".format(sheet_name))
+                continue
+            ws = fallback_wb[sheet_name]
+            rows = process_sheet(ws, config)
+            src = "car_survivor_tables.xlsx"
+        else:
+            print("  SKIP: {} (파일 없음)".format(sheet_name))
+            continue
 
-        # MessagePack 직렬화
         packed = msgpack.packb(rows, use_bin_type=True, use_single_float=True)
 
-        # .bytes 파일 저장
         out_path = os.path.join(OUTPUT_DIR, config["output"] + ".bytes")
         with open(out_path, "wb") as f:
             f.write(packed)
 
-        print("  {} -> {} ({} rows, {} bytes)".format(
-            sheet_name, os.path.basename(out_path), len(rows), len(packed)))
+        print("  {} ({}) -> {} ({} rows, {} bytes)".format(
+            sheet_name, src, os.path.basename(out_path), len(rows), len(packed)))
         total += len(rows)
 
-    wb.close()
-    print("\nDone! Total {} rows exported to {} tables.".format(total, len(SHEET_CONFIG)))
+    if fallback_wb:
+        fallback_wb.close()
+
+    print("\nDone! Total {} rows exported.".format(total))
 
 
 if __name__ == "__main__":
