@@ -57,7 +57,7 @@ SHEET_CONFIG = {
     },
     "TB_Wave": {
         "output": "TB_Wave",
-        "types": [str, int, str, int, float, int, float, str],
+        "types": [str, int, str, int, float, int, float, str, float, float, float, int, float, float, float],
     },
     "TB_Level": {
         "output": "TB_Level",
