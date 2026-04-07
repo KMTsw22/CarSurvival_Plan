@@ -21,8 +21,9 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 # ─── 설정 ───
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FALLBACK_XLSX = os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx")
-#OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables")
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvival", "Assets", "Resources", "Tables")
+OUTPUT_DIRS = [
+    os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables"),
+]
 
 
 # 각 시트에 대한 설정: (시트명, 출력파일명, 컬럼 타입 리스트)
@@ -54,7 +55,7 @@ SHEET_CONFIG = {
     },
     "TB_MonsterDrop": {
         "output": "TB_MonsterDrop",
-        "types": [str, str, int, int, int],
+        "types": [str, str, int, int, int, float, float],
     },
     "TB_Wave": {
         "output": "TB_Wave",
@@ -83,6 +84,10 @@ SHEET_CONFIG = {
     "TB_WarningWave": {
         "output": "TB_WarningWave",
         "types": [str, int, str, int, float, int, float, float, str],
+    },
+    "TB_MonsterSkill": {
+        "output": "TB_MonsterSkill",
+        "types": [str, str, str, str, float, float, float, float, float, int, float, str, int, float, float, float, float, float],
     },
 }
 
@@ -139,8 +144,9 @@ def process_sheet(ws, config):
 
 
 def main():
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print("Output: {}".format(os.path.abspath(OUTPUT_DIR)))
+    for d in OUTPUT_DIRS:
+        os.makedirs(d, exist_ok=True)
+    print("Output: {}".format(", ".join(os.path.abspath(d) for d in OUTPUT_DIRS)))
 
     # 특정 테이블만 변환 (인자가 있으면)
     filter_tables = None
@@ -180,12 +186,14 @@ def main():
 
         packed = msgpack.packb(rows, use_bin_type=True, use_single_float=True)
 
-        out_path = os.path.join(OUTPUT_DIR, config["output"] + ".bytes")
-        with open(out_path, "wb") as f:
-            f.write(packed)
+        filename = config["output"] + ".bytes"
+        for out_dir in OUTPUT_DIRS:
+            out_path = os.path.join(out_dir, filename)
+            with open(out_path, "wb") as f:
+                f.write(packed)
 
         print("  {} ({}) -> {} ({} rows, {} bytes)".format(
-            sheet_name, src, os.path.basename(out_path), len(rows), len(packed)))
+            sheet_name, src, filename, len(rows), len(packed)))
         total += len(rows)
 
     if fallback_wb:

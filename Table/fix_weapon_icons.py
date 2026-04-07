@@ -1,62 +1,155 @@
 """
-TB_Weapon icon_key 일괄 업데이트 후 재익스포트
+TB_Weapon icon_key 수정 스크립트
+- Weapons 폴더의 실제 파일명을 읽어서 weapon_type과 매칭
+- Excel의 icon_key 컬럼을 업데이트
+- TB_Weapon.bytes 재출력
 
 사용법: py fix_weapon_icons.py
 """
-import os, sys, io, msgpack, openpyxl
+
+import os
+import sys
+import io
+import msgpack
+import openpyxl
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-XLSX_PATH = os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx")
-OUTPUT_DIR = os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables")
+EXCEL_PATH = os.path.join(SCRIPT_DIR, "car_survivor_tables.xlsx")
+ICONS_DIR = os.path.join(
+    SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources",
+    "Sprites", "Icons", "Weapons"
+)
+OUTPUT_DIRS = [
+    os.path.join(SCRIPT_DIR, "..", "..", "CarSurvior", "Assets", "Resources", "Tables"),
+    os.path.join(SCRIPT_DIR, "..", "..", "CarSurvival", "Assets", "Resources", "Tables"),
+]
 
-ICON_MAP = {
-    "ico_machinegun": "weapon_machinegun",
-    "ico_oilslick": "weapon_oilslick",
-    "ico_spinblade": "weapon_spinblade",
-    "ico_sawblade": "weapon_spinblade",
-}
+WEAPON_TYPE_COL = 7   # 1-based (column G)
+ICON_KEY_COL = 12     # 1-based (column L)
 
-TYPES = [str, str, str, float, str, str, str, float, float, int, int, str, float, float, float, float, float]
+# Export types for TB_Weapon (18 columns)
+TYPES = [str, str, str, float, str, str, str, float, float, int, int, str,
+         float, float, float, float, float, float]
 
-def cast(val, t):
-    if val is None:
-        return "" if t == str else 0 if t == int else 0.0 if t == float else False
-    if t == int: return int(float(val)) if val else 0
-    if t == float: return float(val) if val else 0.0
-    if t == str: return str(val) if val else ""
-    return val
+
+def cast_value(value, target_type):
+    if value is None:
+        if target_type == str:
+            return ""
+        elif target_type == int:
+            return 0
+        elif target_type == float:
+            return 0.0
+        elif target_type == bool:
+            return False
+        return value
+    if target_type == bool:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            return value.lower() in ("true", "1", "yes")
+        return bool(value)
+    elif target_type == int:
+        return int(float(value)) if value else 0
+    elif target_type == float:
+        return float(value) if value else 0.0
+    elif target_type == str:
+        return str(value) if value else ""
+    return value
+
 
 def main():
-    wb = openpyxl.load_workbook(XLSX_PATH)
+    # 1) Read actual icon filenames (without extension, excluding .meta)
+    icon_files = []
+    for f in os.listdir(ICONS_DIR):
+        if f.endswith(".meta"):
+            continue
+        name_no_ext = os.path.splitext(f)[0]
+        icon_files.append(name_no_ext)
+
+    print("=== Actual icon files ===")
+    for f in sorted(icon_files):
+        print(f"  {f}")
+
+    # 2) Build mapping: suffix after "ico-" -> full icon name
+    #    e.g. "MachineGun" -> "ico-MachineGun"
+    icon_name_map = {}
+    for icon in icon_files:
+        if icon.startswith("ico-"):
+            suffix = icon[4:]
+            icon_name_map[suffix] = icon
+
+    print(f"\n=== Icon name map (weapon_type suffix -> icon_key) ===")
+    for k, v in sorted(icon_name_map.items()):
+        print(f"  {k} -> {v}")
+
+    # 3) Open Excel and update icon_key based on weapon_type
+    wb = openpyxl.load_workbook(EXCEL_PATH)
     ws = wb["TB_Weapon"]
 
+    print(f"\n=== Updating icon_key values ===")
+    changes = 0
     for row_idx, row in enumerate(ws.iter_rows(min_row=2), start=2):
-        icon_cell = row[11]  # icon_key (col index 11)
-        old_val = icon_cell.value
-        if old_val and old_val in ICON_MAP:
-            icon_cell.value = ICON_MAP[old_val]
-            print(f"행 {row_idx}: '{old_val}' → '{ICON_MAP[old_val]}'")
+        weapon_id = row[0].value
+        if weapon_id is None:
+            break
 
-    wb.save(XLSX_PATH)
+        weapon_type = row[WEAPON_TYPE_COL - 1].value
+        old_icon_key = row[ICON_KEY_COL - 1].value
+
+        # Match weapon_type to icon file
+        if weapon_type in icon_name_map:
+            new_icon_key = icon_name_map[weapon_type]
+        else:
+            print(f"  WARNING: No icon file for weapon_type '{weapon_type}', keeping '{old_icon_key}'")
+            continue
+
+        if old_icon_key != new_icon_key:
+            print(f"  {weapon_id} ({weapon_type}): '{old_icon_key}' -> '{new_icon_key}'")
+            row[ICON_KEY_COL - 1].value = new_icon_key
+            changes += 1
+        else:
+            print(f"  {weapon_id} ({weapon_type}): '{old_icon_key}' (unchanged)")
+
+    if changes > 0:
+        wb.save(EXCEL_PATH)
+        print(f"\nExcel saved with {changes} change(s).")
+    else:
+        wb.save(EXCEL_PATH)
+        print(f"\nNo changes needed in Excel (saved anyway for consistency).")
     wb.close()
-    print("엑셀 저장 완료")
 
-    # 재익스포트
-    wb = openpyxl.load_workbook(XLSX_PATH, read_only=True, data_only=True)
-    ws = wb["TB_Weapon"]
+    # 4) Re-export TB_Weapon.bytes
+    print(f"\n=== Re-exporting TB_Weapon.bytes ===")
+    wb = openpyxl.load_workbook(EXCEL_PATH, read_only=True, data_only=True)
+    ws_ro = wb["TB_Weapon"]
+
     rows = []
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if row[0] is None or str(row[0]).startswith("["): break
-        rows.append([cast(row[i] if i < len(row) else None, TYPES[i]) for i in range(len(TYPES))])
+    header_count = len(TYPES)
+    for row in ws_ro.iter_rows(min_row=2, values_only=True):
+        first_cell = row[0] if row else None
+        if first_cell is None or str(first_cell).startswith("["):
+            break
+        row_data = []
+        for col_idx in range(header_count):
+            raw = row[col_idx] if col_idx < len(row) else None
+            row_data.append(cast_value(raw, TYPES[col_idx]))
+        rows.append(row_data)
     wb.close()
 
     packed = msgpack.packb(rows, use_bin_type=True, use_single_float=True)
-    out_path = os.path.join(OUTPUT_DIR, "TB_Weapon.bytes")
-    with open(out_path, "wb") as f:
-        f.write(packed)
-    print(f"TB_Weapon.bytes 재생성: {len(rows)} rows, {len(packed)} bytes")
+
+    for out_dir in OUTPUT_DIRS:
+        os.makedirs(out_dir, exist_ok=True)
+        out_path = os.path.join(out_dir, "TB_Weapon.bytes")
+        with open(out_path, "wb") as f:
+            f.write(packed)
+        print(f"  Written: {os.path.abspath(out_path)} ({len(rows)} rows, {len(packed)} bytes)")
+
+    print("\nDone!")
+
 
 if __name__ == "__main__":
     main()
